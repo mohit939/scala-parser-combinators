@@ -1,5 +1,6 @@
 import ScalaModulePlugin._
 import sbtcrossproject.{crossProject, CrossType}
+import de.johoop.jacoco4sbt.JacocoPlugin._
 
 scalaVersionsByJvm in ThisBuild := {
   val v211 = "2.11.11"
@@ -13,7 +14,7 @@ scalaVersionsByJvm in ThisBuild := {
     9 -> List(v212 -> false, v213 -> false, v211 -> false)
   )
 }
-
+lazy val jacoco_settings = Defaults.defaultSettings ++ Seq(jacoco.settings: _*)
 lazy val root = project.in(file("."))
   .aggregate(`scala-parser-combinatorsJS`, `scala-parser-combinatorsJVM`, `scala-parser-combinatorsNative`)
   .settings(disablePublishing)
@@ -66,7 +67,8 @@ lazy val `scala-parser-combinators` = crossProject(JSPlatform, JVMPlatform, Nati
       else libraryDependencies.value
     }
   )
-
+val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA, settings = jacoco_settings).settings(
+   parallelExecution in jacoco.Config := false)
 lazy val `scala-parser-combinatorsJVM` = `scala-parser-combinators`.jvm
 lazy val `scala-parser-combinatorsJS` = `scala-parser-combinators`.js
 lazy val `scala-parser-combinatorsNative` = `scala-parser-combinators`.native
